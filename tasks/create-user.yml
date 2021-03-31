@@ -1,35 +1,35 @@
 ---
 - name: Create kubeadm Group
   group:
-    name: "{{ kubeadm.os_user.group }}"
-    gid: "{{ kubeadm.os_user.gid }}"
+    name: "kube"
+    gid: "{{ application_users.kube.gid }}"
     state: present
   become: yes
 
 - name: Create kubeadm User
   user:
-    name: "{{ kubeadm.os_user.user }}"
-    comment: "{{ kubeadm.os_user.comment }}"
-    group: "{{ kubeadm.os_user.group }}"
-    groups: "{{ kubeadm.os_user.groups }}"
-    uid: "{{ kubeadm.os_user.uid }}"
+    name: "kube"
+    comment: "{{ application_users.kube.comment }}"
+    group: "kube"
+    groups: "{{ application_users.kube.groups }}"
+    uid: "{{ application_users.kube.uid }}"
     shell: "/bin/bash"
     generate_ssh_key: yes
     ssh_key_bits: 2048
     ssh_key_file: .ssh/id_rsa
-    ssh_key_comment: "{{ kubeadm.os_user.user }}@{{ inventory_hostname }}"
+    ssh_key_comment: "kube@{{ inventory_hostname }}"
     state: present
   become: yes
 
 - name: Collect public keys of kubeadm-users 
-  shell: "cat /home/{{ kubeadm.os_user.user }}/.ssh/id_rsa.pub"
+  shell: "cat /home/kube/.ssh/id_rsa.pub"
   changed_when: False
   become: yes
   register: ssh_public_key
 
 - name: Set SSH-Key for default Admin User
   authorized_key:
-    user: "{{ kubeadm.os_user.user }}"
+    user: "kube"
     key: "{{ item.key }}"
     state: present
   become: yes
