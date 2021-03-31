@@ -1,11 +1,11 @@
 ---
-- name: Cleanup user for k8s
-  include_tasks: cleanup-user.yml
-  when: 
-    - k8s_node is defined
-    - serveNet_ip is defined
-    - kubernetes_engine != "kubeadm"
-  tags: [ never, cleanup ]
+# - name: Cleanup user for k8s
+#   include_tasks: cleanup-user.yml
+#   when: 
+#     - k8s_node is defined
+#     - serveNet_ip is defined
+#     - kubernetes_engine != "kubeadm"
+#   tags: [ never, cleanup ]
 
 - name: Generate user for k8s
   include_tasks: create-user.yml
@@ -13,4 +13,4 @@
     - k8s_node is defined
     - serveNet_ip is defined
     - kubernetes_engine == "kubeadm"
-  tags: [ nocleanup ]
+  # tags: [ nocleanup ]
