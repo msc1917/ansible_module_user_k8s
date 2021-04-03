@@ -1,25 +1,37 @@
 ---
 - name: Create kubeadm Group
   group:
-    name: "kube"
-    gid: "{{ application_users.kube.gid }}"
+    name: "{{ application_users.k8s.group }}"
+    gid:  "{{ application_users.k8s.gid }}"
     state: present
   become: yes
 
 - name: Create kubeadm User
   user:
-    name: "kube"
-    comment: "{{ application_users.kube.comment }}"
-    group: "kube"
-    groups: "{{ application_users.kube.groups }}"
-    uid: "{{ application_users.kube.uid }}"
-    shell: "/bin/bash"
+    name:             "{{ application_users.k8s.user }}"
+    comment:          "{{ application_users.k8s.comment }}"
+    group:            "{{ application_users.k8s.group }}"
+    # groups:           "{{ application_users.k8s.groups }}"
+    uid:              "{{ application_users.k8s.uid }}"
+    shell:            "/bin/bash"
     generate_ssh_key: yes
-    ssh_key_bits: 2048
-    ssh_key_file: .ssh/id_rsa
-    ssh_key_comment: "kube@{{ inventory_hostname }}"
-    state: present
+    ssh_key_bits:     2048
+    ssh_key_file:     .ssh/id_rsa
+    ssh_key_comment:  "kube@{{ inventory_hostname }}"
+    state:            present
+    append:           yes
   become: yes
+
+- name: Add groups to kubeadm User
+  user:
+    name:             "{{ application_users.k8s.user }}"
+    groups:           "{{ item }}"
+    state:            present
+    append:           yes
+  become:             yes
+  ignore_errors:      yes
+  with_items: 
+      - "{{ application_users.k8s.groups }}"
 
 - name: Collect public keys of kubeadm-users 
   shell: "cat /home/kube/.ssh/id_rsa.pub"
@@ -29,8 +41,8 @@
 
 - name: Set SSH-Key for default Admin User
   authorized_key:
-    user: "kube"
-    key: "{{ item.key }}"
+    user:  "{{ application_users.k8s.user }}"
+    key:   "{{ item.key }}"
     state: present
   become: yes
   with_items:
@@ -47,7 +59,7 @@
   become: yes
   with_nested:
     - "{{groups['all_kubernetes']}}"
-    - "{{ kubeadm.os_user['user'] }}"
+    - "{{ application_users.k8s.user }}"
     - "{{ ssh_public_key.stdout }}"
   when: 
     - item[0] in ansible_play_hosts
