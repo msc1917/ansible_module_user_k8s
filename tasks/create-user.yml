@@ -47,7 +47,7 @@
   become: yes
   with_items:
     - "{{ ssh_keys }}"
-  when: item["user"] in kubernetes_ssh_keys
+  when: item["user"] in kubernetes.share_ssh_keys
       
 - name: Set SSH-Key for kubernetes-users
   authorized_key:

@@ -4,7 +4,8 @@
   when: 
     - k8s_node is defined
     - serveNet_ip is defined
-    - kubernetes_engine != "kubeadm"
+    - kubernetes is defined
+    - kubernetes.engine != "kubeadm"
   tags: [ never, cleanup ]
 
 - name: Generate user for k8s
@@ -12,5 +13,6 @@
   when: 
     - k8s_node is defined
     - serveNet_ip is defined
-    - kubernetes_engine == "kubeadm"
+    - kubernetes is defined
+    - kubernetes.engine == "kubeadm"
   tags: [ nocleanup ]
